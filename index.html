@@ -1120,7 +1120,7 @@ body.vehicle-runtime.pleos-display-preview .cockpit .driving-view{display:none!i
 body.vehicle-runtime.pleos-display-preview .cockpit .vehicle-status{grid-template-columns:minmax(240px,1fr) auto}
 body.vehicle-runtime.pleos-display-preview .cockpit .driving-status{border-right:0}
 </style>
-<meta name="robots" content="noindex,nofollow"><meta name="application-build" content="maintainability-v51-20261114"><style id="gps-recovery-styles">.gps-map-gate{overflow:auto;overscroll-behavior:contain}.gps-map-gate>div{width:min(100%,440px)}.gps-actions{display:flex;flex-wrap:wrap;gap:8px}.gps-actions .gps-cancel{background:#e3ebf3;color:#0b2648}.gps-recovery{margin-top:18px;padding:16px;border:1px solid #c8d7e7;border-radius:14px;background:#fff;text-align:left}.gps-recovery[hidden],.gps-cancel[hidden]{display:none}.gps-recovery strong{font-size:16px;color:#0b2648}.gps-recovery p,.gps-recovery li{font-size:13px;line-height:1.65;color:#344f6a}.gps-recovery ol{padding-left:20px}.gps-map-gate .gps-copy-link{min-height:42px;background:#e9f0f8;color:#0b2648}.gps-copy-status{display:block;font-size:12px;line-height:1.6;margin-top:8px;color:#234e7c}.gps-copy-fallback{width:100%;margin-top:8px;padding:10px;font-size:12px;border:1px solid #9bb2cb;border-radius:8px}.gps-real-location-note{margin-bottom:0;color:#62788d!important}.gps-privacy{margin-top:14px}.gps-map-gate[aria-busy=true] .gps-gate-status::before{content:'◌';display:inline-block;margin-right:7px;color:#1b5a95}@media(max-height:760px){.gps-map-gate{place-items:start center}}
+<meta name="robots" content="noindex,nofollow"><meta name="application-build" content="microphone-recovery-v52-20261115"><style id="gps-recovery-styles">.gps-map-gate{overflow:auto;overscroll-behavior:contain}.gps-map-gate>div{width:min(100%,440px)}.gps-actions{display:flex;flex-wrap:wrap;gap:8px}.gps-actions .gps-cancel{background:#e3ebf3;color:#0b2648}.gps-recovery{margin-top:18px;padding:16px;border:1px solid #c8d7e7;border-radius:14px;background:#fff;text-align:left}.gps-recovery[hidden],.gps-cancel[hidden]{display:none}.gps-recovery strong{font-size:16px;color:#0b2648}.gps-recovery p,.gps-recovery li{font-size:13px;line-height:1.65;color:#344f6a}.gps-recovery ol{padding-left:20px}.gps-map-gate .gps-copy-link{min-height:42px;background:#e9f0f8;color:#0b2648}.gps-copy-status{display:block;font-size:12px;line-height:1.6;margin-top:8px;color:#234e7c}.gps-copy-fallback{width:100%;margin-top:8px;padding:10px;font-size:12px;border:1px solid #9bb2cb;border-radius:8px}.gps-real-location-note{margin-bottom:0;color:#62788d!important}.gps-privacy{margin-top:14px}.gps-map-gate[aria-busy=true] .gps-gate-status::before{content:'◌';display:inline-block;margin-right:7px;color:#1b5a95}@media(max-height:760px){.gps-map-gate{place-items:start center}}
 
 /* Keep accepted answers visible inside the pinned card while chat history is compacted. */
 .cv-unified .cv-chat-bubble.cv-game-answer{display:block;width:fit-content;max-width:90%;margin:16px 0 14px auto;padding:14px 18px;scroll-margin-block:14px;background:#0b2648;color:#fff;border:1px solid #0b2648;border-radius:18px 3px 18px 18px}
@@ -1989,8 +1989,8 @@ function createAutomaticListening({
  now=()=>Date.now(),echoDelayMs=800,
 }={}){
  const echoDelay=Number.isFinite(echoDelayMs)?Math.max(0,echoDelayMs):800;
- const fatalCodes=new Set(['not-allowed','permission-denied','service-not-allowed','audio-capture','unsupported','language-not-supported','start-failed','start-timeout']);
- const silenceDelays=[800,2000,4000,8000];
+ const fatalCodes=new Set(['not-allowed','permission-denied','service-not-allowed','audio-capture','unsupported','language-not-supported']);
+ const silenceDelays=[300,500,800,1000];
  let wanted=false,suspended=null,status='off',reason='disabled',sequence=0,attempt=null;
  let silenceRetries=0,networkRetries=0,serviceRetries=0,nextStartAt=0,lastErrorCode=null;
  let outputWasBusy=false,echoUntil=0,clock=0,lastKey='',externalStopReason=null;
@@ -2031,14 +2031,13 @@ function createAutomaticListening({
   if(fatalCodes.has(code)){
    suspended=code;publish('error',code);return true;
   }
-  if(['no-audio','no-result','service-stall','incomplete'].includes(code)){
+  if(['no-audio','no-result','service-stall','incomplete','start-failed','start-timeout'].includes(code)){
    // A noisy cabin or a slow recognition service produces these routinely. Back off
    // (1.5 s, 3 s, 6 s, then every 10 s) instead of silently switching the microphone off.
    serviceRetries++;nextStartAt=Math.max(nextStartAt,at+Math.min(10000,1500*2**(serviceRetries-1)));
   }else if(code==='network'){
    networkRetries++;
-   if(networkRetries>2){suspended=code;publish('error',code);return true;}
-   nextStartAt=Math.max(nextStartAt,at+2000*networkRetries);
+   nextStartAt=Math.max(nextStartAt,at+Math.min(10000,2000*networkRetries));
   }else{
    const delay=silenceDelays[Math.min(silenceRetries,silenceDelays.length-1)];
    silenceRetries++;nextStartAt=Math.max(nextStartAt,at+delay);
@@ -2168,7 +2167,7 @@ const RECOGNITION_ERRORS=Object.freeze({
  'aborted':'음성 인식을 중단했어요.',
  'incomplete':'말씀의 끝을 확인하지 못했어요. 다시 말하거나 글로 고쳐 주세요.',
 });
-function createTalkRecognition({Recognition=globalThis.SpeechRecognition||globalThis.webkitSpeechRecognition,onStatus=noop,onInterim=noop,onFinal=noop,onActivity=noop,timeoutMs=30000,captureStartTimeoutMs=5000,finalSettleMs=900,endGraceMs=700,environment=globalThis}={}){
+function createTalkRecognition({Recognition=globalThis.SpeechRecognition||globalThis.webkitSpeechRecognition,onStatus=noop,onInterim=noop,onFinal=noop,onActivity=noop,timeoutMs=30000,captureStartTimeoutMs=5000,finalSettleMs=900,endGraceMs=700,speechEndFlushMs=1200,flushGraceMs=2500,environment=globalThis}={}){
  let active=null,latest=null,sequence=0;
  const now=()=>environment.performance?.now?.()??Date.now();
  const eventNames=['start','audiostart','audioend','soundstart','soundend','speechstart','speechend','result','final','interim','end','error','stop','timeout'];
@@ -2179,7 +2178,8 @@ function createTalkRecognition({Recognition=globalThis.SpeechRecognition||global
  function snapshot(req=active||latest){return req?{id:req.id,stage:req.stage,startedAt:req.startedAt,elapsedMs:req.finishedAt==null?Math.max(0,now()-req.startedAt):req.finishedAt,events:Object.fromEntries(Object.entries(req.events).map(([key,value])=>[key,{...value}])),hasFinal:!!req.finalText,hasInterim:!!req.interimText,awaitingSpeechFinal:req.awaitingSpeechFinal,finalCharacters:req.finalText.length,interimCharacters:req.interimText.length,stopRequested:req.stopRequested,completionReason:req.completionReason||null,errorCode:req.errorCode||null}:null;}
  const emit=(status,detail={})=>onStatus(status,detail);
  function clearSettle(req){environment.clearTimeout(req.settleTimer);req.settleTimer=null;}
- function cleanup(req){environment.clearTimeout(req.timer);environment.clearTimeout(req.captureTimer);clearSettle(req);environment.clearTimeout(req.endTimer);for(const key of ['onstart','onresult','onerror','onend','onaudiostart','onaudioend','onsoundstart','onsoundend','onspeechstart','onspeechend'])req.recognition[key]=null;}
+ function clearFlush(req){environment.clearTimeout(req.flushTimer);req.flushTimer=null;}
+ function cleanup(req){environment.clearTimeout(req.timer);environment.clearTimeout(req.captureTimer);clearSettle(req);clearFlush(req);environment.clearTimeout(req.endTimer);for(const key of ['onstart','onresult','onerror','onend','onaudiostart','onaudioend','onsoundstart','onsoundend','onspeechstart','onspeechend'])req.recognition[key]=null;}
  function activity(req,speaking,available){const next={active:speaking===true,available:available===true};if(req.activity&&req.activity.active===next.active&&req.activity.available===next.available)return;req.activity=next;onActivity({...next,id:req.id,source:'speech-recognition'});}
  function finish(req,status,detail={},abort=false){if(active!==req)return false;active=null;req.stage=status;req.errorCode=detail.code||null;req.completionReason=detail.completionReason||null;req.finishedAt=Math.max(0,now()-req.startedAt);cleanup(req);activity(req,false,false);if(abort)try{req.recognition.abort();}catch{}emit(status,{id:req.id,...detail,diagnostics:snapshot(req)});return true;}
  function complete(req,completionReason,abort=false){const text=req.finalText,alternatives=req.alternatives;if(finish(req,'completed',{completionReason},abort))onFinal(text,{alternatives,completionReason,diagnostics:snapshot(req)});}
@@ -2200,11 +2200,21 @@ function createTalkRecognition({Recognition=globalThis.SpeechRecognition||global
    try{req.recognition.stop?.();}catch{/* The bounded grace still releases the engine. */}
   },Math.max(1,finalSettleMs));
  }
+ function flushEndedSpeech(req){
+  clearFlush(req);
+  if(active!==req||!req.interimText||req.stopRequested)return;
+  req.flushTimer=environment.setTimeout(()=>{
+   req.flushTimer=null;if(active!==req||!req.interimText||req.stopRequested)return;
+   req.stopRequested=true;mark(req,'stop');
+   req.endTimer=environment.setTimeout(()=>{if(active!==req)return;if(canComplete(req))complete(req,'speech-end-flush',true);else fail(req,'incomplete');},Math.max(1,flushGraceMs));
+   try{req.recognition.stop?.();}catch{}
+  },Math.max(1,speechEndFlushMs));
+ }
  function cancel(reason='cancelled'){const req=active;if(req)finish(req,'cancelled',{reason,message:'음성 인식을 중단했어요.'},true);}
  function start(){
   cancel('replaced');if(typeof Recognition!=='function'){emit('failed',{code:'unsupported',message:'이 브라우저는 음성 인식을 지원하지 않아요. Chrome에서 열거나 글로 입력해 주세요.'});return false;}
   let recognition;try{recognition=new Recognition();}catch{emit('failed',{code:'unsupported',message:'음성 인식을 시작하지 못했어요. 글로 입력해 주세요.'});return false;}
-  const req={id:++sequence,recognition,timer:null,captureTimer:null,settleTimer:null,endTimer:null,started:false,startedAt:now(),finishedAt:null,stage:'preparing',events:Object.fromEntries(eventNames.map(name=>[name,{count:0,firstAt:null,lastAt:null}])),awaitingSpeechFinal:false,finalSignature:'[]',stopRequested:false,activity:null,finalText:'',interimText:'',alternatives:[]};active=req;latest=req;
+  const req={id:++sequence,recognition,timer:null,captureTimer:null,settleTimer:null,flushTimer:null,endTimer:null,started:false,startedAt:now(),finishedAt:null,stage:'preparing',events:Object.fromEntries(eventNames.map(name=>[name,{count:0,firstAt:null,lastAt:null}])),speechEnded:false,awaitingSpeechFinal:false,finalSignature:'[]',stopRequested:false,activity:null,finalText:'',interimText:'',alternatives:[]};active=req;latest=req;
   recognition.lang='ko-KR';recognition.continuous=true;recognition.interimResults=true;recognition.maxAlternatives=3;
   recognition.onstart=()=>{
    if(active!==req||req.started)return;mark(req,'start');req.started=true;
@@ -2214,10 +2224,10 @@ function createTalkRecognition({Recognition=globalThis.SpeechRecognition||global
    activity(req,false,true);if(active===req)emit('listening',{id:req.id,message:'듣고 있어요. 편하게 말씀해 주세요.',diagnostics:snapshot(req)});
   };
   for(const event of ['audiostart','audioend','soundstart','soundend'])recognition['on'+event]=()=>{if(active===req)mark(req,event);};
-  recognition.onspeechstart=()=>{if(active!==req)return;mark(req,'speechstart');req.awaitingSpeechFinal=true;clearSettle(req);if(req.started)activity(req,true,true);};
-  recognition.onspeechend=()=>{if(active!==req)return;mark(req,'speechend');if(req.started)activity(req,false,true);settleFinal(req);};
+  recognition.onspeechstart=()=>{if(active!==req)return;mark(req,'speechstart');req.speechEnded=false;req.awaitingSpeechFinal=true;clearSettle(req);clearFlush(req);if(req.started)activity(req,true,true);};
+  recognition.onspeechend=()=>{if(active!==req)return;mark(req,'speechend');req.speechEnded=true;if(req.started)activity(req,false,true);settleFinal(req);flushEndedSpeech(req);};
   recognition.onresult=event=>{
-   if(active!==req)return;mark(req,'result');clearSettle(req);
+   if(active!==req)return;mark(req,'result');clearSettle(req);clearFlush(req);
    // results contains the entire session, including preceding final segments.
    const finals=[],interims=[],segments=[];
    for(let i=0;i<(event.results?.length||0);i++){
@@ -2241,9 +2251,9 @@ function createTalkRecognition({Recognition=globalThis.SpeechRecognition||global
    if(req.finalText)mark(req,'final');if(req.interimText)mark(req,'interim');
    if(req.finalText.length+req.interimText.length>1000){finish(req,'failed',{code:'too-long',message:'짧게 나누어 다시 말씀해 주세요.'},true);return;}
    if(req.finalText||req.interimText)onInterim([req.finalText,req.interimText].filter(Boolean).join(' '));
-   settleFinal(req);
+   settleFinal(req);if(req.speechEnded)flushEndedSpeech(req);
   };
-  recognition.onerror=event=>{if(active!==req)return;mark(req,'error');const code=String(event?.error||'unknown');finish(req,'failed',{code,message:RECOGNITION_ERRORS[code]||'말씀을 알아듣지 못했어요. 다시 눌러 말씀해 주세요.'},true);};
+  recognition.onerror=event=>{if(active!==req)return;mark(req,'error');const code=String(event?.error||'unknown');if(['no-speech','network','aborted'].includes(code)&&canComplete(req)){complete(req,'final-before-'+code,true);return;}finish(req,'failed',{code,message:RECOGNITION_ERRORS[code]||'말씀을 알아듣지 못했어요. 다시 눌러 말씀해 주세요.'},true);};
   recognition.onend=()=>{
    if(active!==req)return;mark(req,'end');
    if(req.interimText||req.awaitingSpeechFinal&&req.finalText){finish(req,'failed',{code:'incomplete',message:RECOGNITION_ERRORS.incomplete});return;}
@@ -2260,7 +2270,7 @@ function createTalkRecognition({Recognition=globalThis.SpeechRecognition||global
   },Math.max(1,Math.min(30000,timeoutMs)));
   emit('preparing',{id:req.id,message:'마이크를 준비하고 있어요.',diagnostics:snapshot(req)});
   if(active!==req)return false;
-  try{recognition.start();return true;}catch{finish(req,'failed',{code:'start-failed',message:'마이크를 시작하지 못했어요. 권한과 연결을 확인해 주세요.'},true);return false;}
+  try{recognition.start();return true;}catch(error){const code=error?.name==='NotAllowedError'?'not-allowed':'start-failed';finish(req,'failed',{code,message:RECOGNITION_ERRORS[code]||'마이크를 시작하지 못했어요. 잠시 후 다시 연결할게요.'},true);return false;}
  }
  return {start,cancel,isBusy:()=>!!active,isSupported:()=>typeof Recognition==='function',getDiagnostics:()=>snapshot()};
 }
@@ -7077,7 +7087,7 @@ function mountLiveTalk({panel,demoBoarded=false,getContext=()=>({}),getTurnConte
  const blockCopy={driving:'AI 대화는 P 정차 후 시작해 주세요.',quiet:'조용히 가기를 해제하면 자동 대화를 이어가요.',media:'미디어가 끝나면 자동 대화를 이어가요.',focus:'운전 집중 구간이 끝나면 자동 대화를 이어가요.',background:'화면을 벗어나 마이크와 재생을 멈췄어요.',closed:'대화 창이 닫혀 마이크를 쉬고 있어요.',mode:'다른 화면으로 이동해 대화를 멈췄어요.'};
  function autoState(){
   const value=automatic?.state()||{wanted:false,enabled:false,status:'off',reason:'disabled',listening:false},turn=getTurnContext()||{};const listeningCopy=turn.phase==='confirming'?'이곳이 맞으면 “네, 맞아요”, 아니면 “아니요”라고 말씀해 주세요.':turn.phase==='candidates'?'가실 곳을 “1번”처럼 번호로 말씀해 주세요.':['relationship','passenger-detected'].includes(turn.phase)?'함께 탄 분과의 관계를 말씀해 주세요.':turn.phase==='ready'&&turn.game?.active&&turn.game.phase==='question'?turn.game.format==='conversation'?'지금 질문에 떠오르는 이야기나 화면의 선택지를 말해 주세요.':turn.game.format==='quiz'?'정답이라고 생각하는 내용을 말해 주세요.':'마음에 드는 선택지를 말해 주세요.':'“○○ 갈게”라고 말하면 목적지를 바로 설정해요.';
-  const descriptions={disabled:'자동 대화를 켜면 버튼을 누르지 않고 말할 수 있어요.',user:'자동 대화를 껐어요.',location:'위치 확인과 첫 인사 후 자동으로 들을게요.',output:'현대화가 말하는 중 · 음성 입력 대기',echo:'안내가 끝났어요. 잠시 후 다시 들어요.',turn:'답변을 준비하는 중 · 마이크 대기',quiet:'조용히 모드 · 마이크 꺼짐',media:'미디어 재생 중 · 마이크 대기',focus:'운전 집중 중 · 마이크 대기',background:'다른 화면에서는 마이크를 사용하지 않아요.',paused:'화면과 글 입력 상태를 확인하며 마이크를 쉬고 있어요.',connection:'대화 연결을 기다리고 있어요.',starting:'브라우저 마이크 허용을 기다리고 있어요.',listening:listeningCopy,retry:'말소리를 기다리고 있어요. 잠시 후 다시 들어요.',unsupported:'이 브라우저는 음성 인식을 지원하지 않아요. Chrome이나 글 입력을 이용해 주세요.','not-allowed':'마이크 권한이 필요해요. 허용한 뒤 자동 대화를 다시 켜 주세요.','service-not-allowed':'음성 인식 서비스 권한을 확인한 뒤 다시 켜 주세요.','audio-capture':'사용할 마이크를 찾지 못했어요. 연결을 확인한 뒤 다시 켜 주세요.','language-not-supported':'한국어 음성 인식이 지원되지 않아요. 글로 입력해 주세요.','incomplete':'말씀의 끝을 확인하지 못했어요. 짧게 나누어 다시 말씀해 주세요.','no-audio':'마이크 입력 시작을 확인하지 못했어요. 입력 장치와 권한을 확인해 주세요.','no-result':'말소리는 들었지만 문장으로 바꾸지 못했어요. 다시 말씀해 주세요.','service-stall':'음성 인식 서비스가 응답하지 않아요. 자동 대화를 다시 켜 주세요.',network:'음성 인식 연결을 확인한 뒤 자동 대화를 다시 켜 주세요.','start-timeout':'브라우저 마이크 허용을 확인한 뒤 자동 대화를 다시 켜 주세요.','start-failed':'마이크를 시작하지 못했어요. 권한을 확인하고 다시 켜 주세요.'};
+  const descriptions={disabled:'자동 대화를 켜면 버튼을 누르지 않고 말할 수 있어요.',user:'자동 대화를 껐어요.',location:'위치 확인과 첫 인사 후 자동으로 들을게요.',output:'현대화가 말하는 중 · 음성 입력 대기',echo:'안내가 끝났어요. 잠시 후 다시 들어요.',turn:'답변을 준비하는 중 · 마이크 대기',quiet:'조용히 모드 · 마이크 꺼짐',media:'미디어 재생 중 · 마이크 대기',focus:'운전 집중 중 · 마이크 대기',background:'다른 화면에서는 마이크를 사용하지 않아요.',paused:'화면과 글 입력 상태를 확인하며 마이크를 쉬고 있어요.',connection:'대화 연결을 기다리고 있어요.',starting:'브라우저 마이크 허용을 기다리고 있어요.',listening:listeningCopy,retry:'말소리를 기다리고 있어요. 잠시 후 다시 들어요.',unsupported:'이 브라우저는 음성 인식을 지원하지 않아요. Chrome이나 글 입력을 이용해 주세요.','not-allowed':'마이크 권한이 필요해요. 허용한 뒤 자동 대화를 다시 켜 주세요.','service-not-allowed':'음성 인식 서비스 권한을 확인한 뒤 다시 켜 주세요.','audio-capture':'사용할 마이크를 찾지 못했어요. 연결을 확인한 뒤 다시 켜 주세요.','language-not-supported':'한국어 음성 인식이 지원되지 않아요. 글로 입력해 주세요.','incomplete':'말씀의 끝을 확인하지 못했어요. 짧게 나누어 다시 말씀해 주세요.','no-audio':'마이크 입력 시작을 확인하지 못했어요. 입력 장치와 권한을 확인해 주세요.','no-result':'말소리는 들었지만 문장으로 바꾸지 못했어요. 다시 말씀해 주세요.','service-stall':'음성 인식 서비스가 응답하지 않아요. 자동 대화를 다시 켜 주세요.',network:'음성 인식 연결을 다시 시도하고 있어요.','start-timeout':'마이크 연결이 지연되어 다시 시도하고 있어요.','start-failed':'마이크 연결을 다시 시도하고 있어요.'};
   return {...value,fatal:!!value.suspended,detail:value.listening&&getOutputProblem()?'안내 소리를 재생하지 못했어요. 화면의 질문을 보고 말씀해 주세요.':(!value.listening&&!value.preparing&&['no-audio','no-result','service-stall','incomplete'].includes(value.errorCode)?descriptions[value.errorCode]:null)||descriptions[value.reason]||descriptions[value.errorCode]||'자동 대화를 준비하고 있어요.'};
  }
  const client=clientFactory({getContext:currentContext});
@@ -7205,7 +7215,7 @@ function mountLiveTalk({panel,demoBoarded=false,getContext=()=>({}),getTurnConte
  function finishVoiceInputHandoff(token,{status='cancelled',code=null}={}){
   if(inputHandoff?.token!==token)return false;
   const {wanted}=inputHandoff;inputHandoff=null;
-  const blocked=status==='cancelled'&&code!=='replaced'||['not-allowed','permission-denied','service-not-allowed','audio-capture','unsupported','language-not-supported','start-failed','start-timeout'].includes(code);
+  const blocked=status==='cancelled'&&code!=='replaced'||['not-allowed','permission-denied','service-not-allowed','audio-capture','unsupported','language-not-supported'].includes(code);
   inputHandoffBlocked=blocked;
   if(!blocked&&wanted&&!userDisabledAutomatic){
    // Yield the capture before resuming; a successful dictation can begin its

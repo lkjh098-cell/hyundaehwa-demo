@@ -1,5 +1,5 @@
 {
-  "applicationBuild": "maintainability-v51-20261114",
+  "applicationBuild": "microphone-recovery-v52-20261115",
   "sourceRoot": "ui/",
   "entry": "cockpit.js",
   "modules": [
@@ -21,7 +21,7 @@
     },
     {
       "file": "automatic-listening.mjs",
-      "sha256": "ca15263adb2762c4ab9e0baf39d576eb534f23534017a7f9bc42485e179f3e7f"
+      "sha256": "604e43826f1b9569dbe7785891f65363e78f602fe137b7bd1ca6e19885714084"
     },
     {
       "file": "talk-client.mjs",
@@ -29,7 +29,7 @@
     },
     {
       "file": "talk-recognition.mjs",
-      "sha256": "195f58562e18a1876efbc59d37617c59bbac3cef06842b84a4d83c7b05b61a8d"
+      "sha256": "4ffeac885da5c8c94601fac7305d67e5e53dd84d88b8801a4a0f5617dec60566"
     },
     {
       "file": "talk-panel.mjs",
@@ -257,7 +257,7 @@
     },
     {
       "file": "talk-runtime.mjs",
-      "sha256": "c605001db6004a2dc13347e5cf1525fc292afe779242b9b4fe9b22f5fc4e2ee1"
+      "sha256": "e45764de1dea55b53b9a4544f4aca53f9f6f3ed5239ba23948877fe82c6d1a57"
     },
     {
       "file": "conversation-data.mjs",
@@ -300,5 +300,5 @@
       "sha256": "744fad46e7e1cfeabc55cec023a1548cb6c7b5ff0e3be3f8cd40511360c76ea1"
     }
   ],
-  "indexSha256": "c1cd96bf02a3b909c202816f8c3444afab3174ebf1c160ffca95ecf09e8c64fc"
+  "indexSha256": "4e539aaed01ae667cf79a21238703a3189e8729328ae8f001401d2b0582024cd"
 }
