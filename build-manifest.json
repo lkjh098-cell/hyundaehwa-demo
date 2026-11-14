@@ -1,0 +1,304 @@
+{
+  "applicationBuild": "maintainability-v51-20261114",
+  "sourceRoot": "ui/",
+  "entry": "cockpit.js",
+  "modules": [
+    {
+      "file": "data/rest-detours.mjs",
+      "sha256": "b4f6c4a5db2c0245ddd3278fd8a094f75aba9850cceccfc5f47d05d5c75d957f"
+    },
+    {
+      "file": "live-trip.mjs",
+      "sha256": "14d986d52d3288c3e724e80ed9fefb30f481a190d2ea2cec94271f1239051622"
+    },
+    {
+      "file": "spoken-intent.mjs",
+      "sha256": "a574948ff5e238cb3021797481312ecc89501cbd0bf588f567e45bb2802a3683"
+    },
+    {
+      "file": "cabin-turn-policy.mjs",
+      "sha256": "6b7bcaa2247e0b0acc1f50775d9812d3e9b73f6291fb60fb382d07caf7ea2f3d"
+    },
+    {
+      "file": "automatic-listening.mjs",
+      "sha256": "ca15263adb2762c4ab9e0baf39d576eb534f23534017a7f9bc42485e179f3e7f"
+    },
+    {
+      "file": "talk-client.mjs",
+      "sha256": "8ac2d4fe38ecd931a0bfa7a686a53716f07960673337920fe8c76f7c672018fa"
+    },
+    {
+      "file": "talk-recognition.mjs",
+      "sha256": "195f58562e18a1876efbc59d37617c59bbac3cef06842b84a4d83c7b05b61a8d"
+    },
+    {
+      "file": "talk-panel.mjs",
+      "sha256": "725fde89a74a465f1c26dc3bf1456249602a9b010b8f9a70c7c26655dbe28452"
+    },
+    {
+      "file": "data/admin-areas.mjs",
+      "sha256": "b7deebf8faa7e4872fb0c8bc7744152fba09a2e268040d2a43f256d7d74a903e"
+    },
+    {
+      "file": "admin-geography.mjs",
+      "sha256": "6ae28767b47a8c9b4b3624fa86840c825e287eb788d633d864da9fe13ded53a6"
+    },
+    {
+      "file": "region-entry-trigger.mjs",
+      "sha256": "aea4ab0bd3b7eec6f6cedae45791541644b89aa803ea9eaa70b7d6ca6d0e8b8f"
+    },
+    {
+      "file": "route-data.mjs",
+      "sha256": "33b30b99e69b23a3add19e5bcd64e0d96f6420478d57b651f441cf29e74890d2"
+    },
+    {
+      "file": "data/seongbuk-question-supplement.mjs",
+      "sha256": "2e8b94ca51264971a35c775d929e280784201fd46b938979ffe6ebf13830ff29"
+    },
+    {
+      "file": "pleos-display-layout.mjs",
+      "sha256": "92bab46799e3da404bd27a9145413b6c40730a46a243aaf3a62792102de31753"
+    },
+    {
+      "file": "destination-voice.mjs",
+      "sha256": "9b4b54807b24463748ee35241d37cff222737ce690473ecfbb2b0f1ddf4f22d5"
+    },
+    {
+      "file": "data/local-food-preferences.mjs",
+      "sha256": "2a6b1ed80c98627cdca5b2bd23ebbb1ae490a1633e4bbab1c744686790de0374"
+    },
+    {
+      "file": "conversation-content.mjs",
+      "sha256": "41bd477b1b8dd0d41ecf5960fb758e36c0e436bf345f4643e4ba84fc7d845ab2"
+    },
+    {
+      "file": "trip-content-policy.mjs",
+      "sha256": "86e6bd0cd77d756a0490582d5ecaada9bf36fde39733226215c24d153c5ba75a"
+    },
+    {
+      "file": "question-locality.mjs",
+      "sha256": "0a220f041d2399b9514478b419e1af8300fb0a516d37e0e885b2dae642298d67"
+    },
+    {
+      "file": "quiz-draw.mjs",
+      "sha256": "b46e41270f7ca2171cd75db2d9e4938bd962ae84a7b4bcaa612104e302783830"
+    },
+    {
+      "file": "destination-weather.mjs",
+      "sha256": "07e39f6dbd250aad3248a2f3cb825c8344c69cf86602e6d7b981b47a44571ceb"
+    },
+    {
+      "file": "cabin-audio.mjs",
+      "sha256": "db03bb5402bdf45e7f450b7a5e7694a62158ec9b4e82194f84a45943d21a2978"
+    },
+    {
+      "file": "silence-weather.mjs",
+      "sha256": "152cbe6ed054289a39ba3bf16135d2882a60e6f4d1bcdc00150ecec3cb14dd74"
+    },
+    {
+      "file": "navigation-safety.mjs",
+      "sha256": "a16ca57e1d4fa4711ecc902159cc1cbc039515a01a0eb404e1d0bbe7d5e4cf45"
+    },
+    {
+      "file": "resumable-speech.mjs",
+      "sha256": "eb30a84bb82618505c25e0fb0809ae04a799878336afff174dc0c61e8b67683c"
+    },
+    {
+      "file": "passenger-status.mjs",
+      "sha256": "8cca270d4be08bcdaf251c587a732a4c54d50c703ea932b5639a9f953215cbe8"
+    },
+    {
+      "file": "quiz-answer-clock.mjs",
+      "sha256": "dd2d11aed779e6824e32790bdfac3b2dbd86b2730b90ff49fc7ec40183bf2239"
+    },
+    {
+      "file": "demo-guide.mjs",
+      "sha256": "62714f704c574794f323e4c6e3a5431520911283f2c4c09765011578f487a038"
+    },
+    {
+      "file": "presentation-policy.mjs",
+      "sha256": "839867b509400f96cb5ed61eac36fd927e310960cfd9d1da6c1a43fba8be6e42"
+    },
+    {
+      "file": "navigation-change.mjs",
+      "sha256": "3ef1d8b138ffe9b2ecdb6cd5c75e1b6f1ccd69333abd3924194ba8caa332e978"
+    },
+    {
+      "file": "location-guidance.mjs",
+      "sha256": "de7d9924d7409c02d1d6a569fa75297114456738723a6ce8670bc056f6081af1"
+    },
+    {
+      "file": "data/regional-lifestyle-bank.mjs",
+      "sha256": "d43fa2dcfcb67034e5dda1817fe89ce36c29bd3de2727d1c9cc3cfbe96a2b976"
+    },
+    {
+      "file": "data/question-bank.mjs",
+      "sha256": "6d6c3f7d984fbaf3bd6b1dfa7395b2306b11f3a94e2772e606c5ba1ac9c7fa03"
+    },
+    {
+      "file": "difficulty-policy.mjs",
+      "sha256": "6421503fb3f8af2cde9b13c18ff7357344027f18e48382e0edea830b2141ef88"
+    },
+    {
+      "file": "regional-topics.mjs",
+      "sha256": "01d10d4c02b8fbc2e96261a24497b16f67260f809176124d9b07fed115c674e1"
+    },
+    {
+      "file": "regional-conversation.mjs",
+      "sha256": "d0b9fbbbbae10bb6538eb7c1899e9b7012d96cdfa6aa87a5b8b36a24b5fb0970"
+    },
+    {
+      "file": "regional-journey.mjs",
+      "sha256": "c04b98c21aa7a633c14054c72f2568b44e8ebf80dd80f8bec99d5d1f643a6051"
+    },
+    {
+      "file": "cabin-experience.mjs",
+      "sha256": "a304cb2b8c20f14b93113362458e9aa45a1c4ff68dca6a634e0c91a2b880cd1b"
+    },
+    {
+      "file": "model.mjs",
+      "sha256": "5de3920a169fa45ef2a8a4a608fd8150a0fd4b22deabe59ebf54afd7db427920"
+    },
+    {
+      "file": "seoul-boundary.mjs",
+      "sha256": "c24140f722364462fe39b59f241f845359a8d33da762ae04c7fc4a22146bcfc2"
+    },
+    {
+      "file": "navigation-context.mjs",
+      "sha256": "0470021c53eee385f8f9a52d9318621d3882f4ebe48bce8e5d1c454e5661c715"
+    },
+    {
+      "file": "real-map.mjs",
+      "sha256": "a05c8f464f9bfa246ff08d7bcfcbe7d345d055f124509f3721e216f5e7fac0a6"
+    },
+    {
+      "file": "demo-drive.mjs",
+      "sha256": "e513ed538732aa5121269925622c4bc64c4e0e5ea56386e0a0610ebb289d6f2e"
+    },
+    {
+      "file": "roadside-topics.mjs",
+      "sha256": "9802cd087cdf1923328e793b63b48f2697ca1f396b395350bc9c8ca45f9c2064"
+    },
+    {
+      "file": "roadside-session.mjs",
+      "sha256": "3b8894a766d5fcb05edda8f00af5eaaaa75bef9a8edce7a6fb76ee1caca4bb31"
+    },
+    {
+      "file": "location-conversation.mjs",
+      "sha256": "2aaf5aa78f36bbe34f0df0884148057a0f15b03482d3afbd90630f5fb6132b6c"
+    },
+    {
+      "file": "journey-prompts.mjs",
+      "sha256": "71fb8450c0a6d031ac789f31386fe0390f79d83a3856bb357d6b31330a7328fd"
+    },
+    {
+      "file": "companion-game.mjs",
+      "sha256": "d0329c365f49944c1bc789122010777a5699aeefa744018599f9723e229ba0f9"
+    },
+    {
+      "file": "demo-command-router.mjs",
+      "sha256": "a991acce87bc3432a3f8e41183fac762af7b3f6e02c3bb19761278f5ef640ff8"
+    },
+    {
+      "file": "data/trip-routes.mjs",
+      "sha256": "8910858d10603ea3e9a52e823fcf9bd16281be3acf83118e2ad15aef18cd29fe"
+    },
+    {
+      "file": "data/neutral-city-route.mjs",
+      "sha256": "0b8bac138266c193c4cb8b27e026de0250e2d929657a39e59b2ba227c3102caf"
+    },
+    {
+      "file": "route-planner.mjs",
+      "sha256": "030eb49583449e2b578507b1e42d3dad0823222f5a79d9cb8d3222f5ba892571"
+    },
+    {
+      "file": "journey-setup.mjs",
+      "sha256": "adc43563a4a20353b9e34090486db8214715ea0e8ef687ab12460fd0056d3696"
+    },
+    {
+      "file": "journey-setup-ui.mjs",
+      "sha256": "3456776d013ae8b873714320dfa6b790e7e1ebbed4f6e918b0150759a58bbe51"
+    },
+    {
+      "file": "destination-service.mjs",
+      "sha256": "51634abc5c0a4678b4c95e30c7cf1689fbeb048c69f3ef3371a2b08c28fd37c2"
+    },
+    {
+      "file": "gps-road.mjs",
+      "sha256": "382d6b2230e4ab1a08e8d98af8e64a403b27367ccd1985956796f21c7d716e91"
+    },
+    {
+      "file": "gps-location-ui.mjs",
+      "sha256": "f06881ab8c1ae03e1c92067ddfc2e95e1404b3f8eea9fab156a2fd5f9f302f25"
+    },
+    {
+      "file": "location-showcase.mjs",
+      "sha256": "479c2592abf3d9c008d64f8f2a560b2d7d1438951563216faad0a200f76fff6b"
+    },
+    {
+      "file": "junction-scene.mjs",
+      "sha256": "13d1541d7ad2f5bae7b73df9238fec7cc60f22b174a54ff69c60a8ba0fffae0f"
+    },
+    {
+      "file": "data/speech-cache.mjs",
+      "sha256": "7509e4659f73779116c0bfaed9292a76dfcfb3e1213c91be6d938f0dcaf8fd03"
+    },
+    {
+      "file": "voice-catalog.mjs",
+      "sha256": "9d03f0aee864efcbdf62a18bd2274a37ab984c087e58f1bdb8f0f62a045c67a3"
+    },
+    {
+      "file": "question-listening.mjs",
+      "sha256": "21a3924f121fb12e09fff42e208f20f8e4dd583ad530c564e5304be87968bb58"
+    },
+    {
+      "file": "boarding-demo.mjs",
+      "sha256": "45f764945ceb8232dd55159d9f323c69c33dcee9f12f2d9bba7d4212a1b4c3b3"
+    },
+    {
+      "file": "talk-runtime.mjs",
+      "sha256": "c605001db6004a2dc13347e5cf1525fc292afe779242b9b4fe9b22f5fc4e2ee1"
+    },
+    {
+      "file": "conversation-data.mjs",
+      "sha256": "279ce3e29d85d2a562279f6e9ce8f91972599a6fcaa36b8901a092037866025b"
+    },
+    {
+      "file": "conversation-engine.mjs",
+      "sha256": "16475de90d4957c4a0e783d159696758f2cc1d542f6c556f484cd12abb5f6bd1"
+    },
+    {
+      "file": "brand-icon.mjs",
+      "sha256": "ed919d3c6c3603079e017f0cc84bcbd8970e941a191e49b07a086f5b1b22bb18"
+    },
+    {
+      "file": "conversation-ui.mjs",
+      "sha256": "b302cb39b1f7bd80df4d1fbe0beed6587fa2b1303ffa6779dd2c912184225a86"
+    },
+    {
+      "file": "conversation-audio.mjs",
+      "sha256": "335fb0129fc46ab05b35daa6e1b48a3a7fa8b866c428da8e4ca7a888f3feb7e3"
+    },
+    {
+      "file": "conversation-runtime.mjs",
+      "sha256": "5bb18a97dabd476a2ca3beb73f5220f31b6934f9d377c7f5aba17d1227ffae3d"
+    },
+    {
+      "file": "oem-cockpit.mjs",
+      "sha256": "a8042dc08a90e662aba92d16868f525204a82cd24d0d5c3e7539954b61ca37e3"
+    },
+    {
+      "file": "drive-controls.mjs",
+      "sha256": "52dbcf12c5794ff496430bbfab79b8b00a4c7116fe1552758ade5ba7592481ad"
+    },
+    {
+      "file": "pleos-shell.mjs",
+      "sha256": "48c44a992039f4f2378201cf98bc06c83e64295260258bb9767b6d34bc1e4d1c"
+    },
+    {
+      "file": "cockpit.js",
+      "sha256": "744fad46e7e1cfeabc55cec023a1548cb6c7b5ff0e3be3f8cd40511360c76ea1"
+    }
+  ],
+  "indexSha256": "c1cd96bf02a3b909c202816f8c3444afab3174ebf1c160ffca95ecf09e8c64fc"
+}
