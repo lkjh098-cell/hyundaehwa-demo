@@ -1,5 +1,5 @@
 {
-  "applicationBuild": "relationship-prompt-recovery-v59-20261115",
+  "applicationBuild": "quiz-first-answer-v60-20261115",
   "sourceRoot": "ui/",
   "entry": "cockpit.js",
   "modules": [
@@ -21,7 +21,7 @@
     },
     {
       "file": "automatic-listening.mjs",
-      "sha256": "604e43826f1b9569dbe7785891f65363e78f602fe137b7bd1ca6e19885714084"
+      "sha256": "14ae669f690135fa42bb2f0c17901688522d141e992ea86c71c045287a4477ab"
     },
     {
       "file": "talk-client.mjs",
@@ -269,7 +269,7 @@
     },
     {
       "file": "talk-runtime.mjs",
-      "sha256": "6c10e843cac24794901fe70a54c5882aea38182c2e1e7bb9a32075476f627fac"
+      "sha256": "0b7acbe51048cedaad74066d55ec4c6b1cec8a3609f381443d1eb633c6cd207a"
     },
     {
       "file": "conversation-data.mjs",
@@ -312,5 +312,5 @@
       "sha256": "2246a555212c844894ffa7695eeaaf00abb14a9af326672991b0008cdc4a0c63"
     }
   ],
-  "indexSha256": "6600121611363bd800d90a6717e7fa7c0b3da1bd1fdb0e056cdee0b73c68b205"
+  "indexSha256": "a4c9a58a79b4457d9ea2851b43e0806b36fad6ff314b9102e38fe2c1d420c6bb"
 }
