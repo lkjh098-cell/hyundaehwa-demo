@@ -1,5 +1,5 @@
 {
-  "applicationBuild": "relationship-first-answer-v58-20261115",
+  "applicationBuild": "relationship-prompt-recovery-v59-20261115",
   "sourceRoot": "ui/",
   "entry": "cockpit.js",
   "modules": [
@@ -224,6 +224,10 @@
       "sha256": "660eee2dd698181e4e3b18cb4cc66ad5a95173db1535b8f0052cb8373c6d38a3"
     },
     {
+      "file": "relationship-prompt.mjs",
+      "sha256": "ad2b51fd6cd1c3a28647f10af5d33b33370f4bb440fba571d1c40355ffc57c12"
+    },
+    {
       "file": "journey-setup-ui.mjs",
       "sha256": "0c25381e1fecaae4144d4583e3e84fc07b0e18d991fae7aa74f7bd49695abdf5"
     },
@@ -305,8 +309,8 @@
     },
     {
       "file": "cockpit.js",
-      "sha256": "7fd0eb8278d3b1122c1687883b6da3db7b42f4083775e98901b69d86e33d272e"
+      "sha256": "2246a555212c844894ffa7695eeaaf00abb14a9af326672991b0008cdc4a0c63"
     }
   ],
-  "indexSha256": "74394abd49e25e9497c324cdb41d53d122b075ca60a325f350fb8a8672c64774"
+  "indexSha256": "6600121611363bd800d90a6717e7fa7c0b3da1bd1fdb0e056cdee0b73c68b205"
 }

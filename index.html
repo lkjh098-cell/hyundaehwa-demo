@@ -1120,7 +1120,7 @@ body.vehicle-runtime.pleos-display-preview .cockpit .driving-view{display:none!i
 body.vehicle-runtime.pleos-display-preview .cockpit .vehicle-status{grid-template-columns:minmax(240px,1fr) auto}
 body.vehicle-runtime.pleos-display-preview .cockpit .driving-status{border-right:0}
 </style>
-<meta name="robots" content="noindex,nofollow"><meta name="application-build" content="relationship-first-answer-v58-20261115"><style id="gps-recovery-styles">.gps-map-gate{overflow:auto;overscroll-behavior:contain}.gps-map-gate>div{width:min(100%,440px)}.gps-actions{display:flex;flex-wrap:wrap;gap:8px}.gps-actions .gps-cancel{background:#e3ebf3;color:#0b2648}.gps-recovery{margin-top:18px;padding:16px;border:1px solid #c8d7e7;border-radius:14px;background:#fff;text-align:left}.gps-recovery[hidden],.gps-cancel[hidden]{display:none}.gps-recovery strong{font-size:16px;color:#0b2648}.gps-recovery p,.gps-recovery li{font-size:13px;line-height:1.65;color:#344f6a}.gps-recovery ol{padding-left:20px}.gps-map-gate .gps-copy-link{min-height:42px;background:#e9f0f8;color:#0b2648}.gps-copy-status{display:block;font-size:12px;line-height:1.6;margin-top:8px;color:#234e7c}.gps-copy-fallback{width:100%;margin-top:8px;padding:10px;font-size:12px;border:1px solid #9bb2cb;border-radius:8px}.gps-real-location-note{margin-bottom:0;color:#62788d!important}.gps-privacy{margin-top:14px}.gps-map-gate[aria-busy=true] .gps-gate-status::before{content:'◌';display:inline-block;margin-right:7px;color:#1b5a95}@media(max-height:760px){.gps-map-gate{place-items:start center}}
+<meta name="robots" content="noindex,nofollow"><meta name="application-build" content="relationship-prompt-recovery-v59-20261115"><style id="gps-recovery-styles">.gps-map-gate{overflow:auto;overscroll-behavior:contain}.gps-map-gate>div{width:min(100%,440px)}.gps-actions{display:flex;flex-wrap:wrap;gap:8px}.gps-actions .gps-cancel{background:#e3ebf3;color:#0b2648}.gps-recovery{margin-top:18px;padding:16px;border:1px solid #c8d7e7;border-radius:14px;background:#fff;text-align:left}.gps-recovery[hidden],.gps-cancel[hidden]{display:none}.gps-recovery strong{font-size:16px;color:#0b2648}.gps-recovery p,.gps-recovery li{font-size:13px;line-height:1.65;color:#344f6a}.gps-recovery ol{padding-left:20px}.gps-map-gate .gps-copy-link{min-height:42px;background:#e9f0f8;color:#0b2648}.gps-copy-status{display:block;font-size:12px;line-height:1.6;margin-top:8px;color:#234e7c}.gps-copy-fallback{width:100%;margin-top:8px;padding:10px;font-size:12px;border:1px solid #9bb2cb;border-radius:8px}.gps-real-location-note{margin-bottom:0;color:#62788d!important}.gps-privacy{margin-top:14px}.gps-map-gate[aria-busy=true] .gps-gate-status::before{content:'◌';display:inline-block;margin-right:7px;color:#1b5a95}@media(max-height:760px){.gps-map-gate{place-items:start center}}
 
 /* Keep accepted answers visible inside the pinned card while chat history is compacted. */
 .cv-unified .cv-chat-bubble.cv-game-answer{display:block;width:fit-content;max-width:90%;margin:16px 0 14px auto;padding:14px 18px;scroll-margin-block:14px;background:#0b2648;color:#fff;border:1px solid #0b2648;border-radius:18px 3px 18px 18px}
@@ -6432,6 +6432,36 @@ function createJourneySetup({getContext=()=>({}),resolveDestination,routeToDesti
 }
 
 return {createJourneySetup};})();
+const {createRelationshipPrompt} = (()=>{
+/** Retain the boarding question while an early spoken answer is still settling. */
+function createRelationshipPrompt({getContext=()=>({}),canPresent=()=>true,speak,environment=globalThis,retryMs=100}={}){
+ if(typeof speak!=='function')throw new TypeError('A setup speech adapter is required');
+ let pending=null,timer=null,sequence=0;
+ const targetKey=context=>JSON.stringify([context.target?.name??null,context.target?.address??null,context.target?.coordinates??null]);
+ function clearTimer(){if(timer!==null)environment.clearTimeout(timer);timer=null;}
+ function cancel(){sequence++;pending=null;clearTimer();}
+ function current(item){const context=getContext()||{};return pending===item&&item.token===sequence&&context.phase==='relationship'&&targetKey(context)===item.target&&canPresent();}
+ function update(){if(pending&&!current(pending))cancel();}
+ async function attempt(item){
+  if(!current(item)){if(pending===item)cancel();return;}
+  let result;
+  try{result=await speak(item.text,{preferPendingInput:true});}catch{if(pending===item)cancel();return;}
+  if(!current(item)){if(pending===item)cancel();return;}
+  if(result?.reason==='input-pending'){
+   // This is a deferred question, not failed audio. The recognizer owns its
+   // bounded input timeout; when that turn ends, the unanswered question is read.
+   timer=environment.setTimeout(()=>{timer=null;void attempt(item);},retryMs);
+  }else cancel(); // Playback submitted/completed, disabled or failed: never loop TTS.
+ }
+ function schedule(text){
+  cancel();if(!text)return;
+  const context=getContext()||{};
+  const item={token:sequence,text,target:targetKey(context)};pending=item;void attempt(item);
+ }
+ return {schedule,update,cancel,isPending:()=>pending!==null};
+}
+
+return {createRelationshipPrompt};})();
 const {mountJourneySetupUI} = (()=>{
 /** Destination and passenger choices use sequential modal steps above navigation. */
 const setupEscape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -8617,11 +8647,12 @@ conversation=mountConversationRuntime({getNarrationActive:()=>narration.isActive
 });passengerStatusUI=mountPassengerStatus({panel:conversation.ui.element});conversation.ui.open();mountPleosDisplayLayout();render();
 const setupOrigin=()=>autoDrive?{name:'시연 차량의 현재 위치',address:liveContext().currentRoad,coordinates:[...liveContext().coordinates],positionSource:'demo-route'}:gpsReady?{name:gpsFix.assumedRoad?'현재 GPS 주변 도로':'현재 GPS 위치',address:gpsFix.assumedRoad?(gpsFix.roadName||'주변 도로')+' · 가장 가까운 도로 가정':'기기에서 확인한 현재 위치 · 도로 확인 중',coordinates:[...gpsFix.coordinates],positionSource:gpsFix.assumedRoad?'gps-road-snap':'gps'}:null;
 difficultyUI=mountDifficultySettings({container:conversation.ui.element.querySelector('.cv-talk-settings'),canConfigure:()=>parkedVehicleEvidence({...state,now:Date.now(),simulatedDriving:autoDrive},{allowSimulatedDriving:true}).allowed,getRelationship:()=>setup?.state().relationship||'friend',onRelationshipChange:id=>setup?.changeRelationship(id),onChange:next=>{quizSettings=next;toast(`퀴즈 난이도 설정 · ${difficultyLabel(next.difficultyMode,next.passengerTraits)}`);}});
+const relationshipPrompt=createRelationshipPrompt({getContext:()=>setup?.state()||{},canPresent:()=>!!setup&&(autoDrive||gpsReady)&&!document.hidden&&!conversation.getState().quiet,speak:(text,options)=>conversation.speakSetupPrompt(text,options)});
 setup=createJourneySetup({getContext:()=>({...state,now:Date.now(),locationReady:autoDrive||gpsReady,origin:setupOrigin(),simulatedDriving:autoDrive,quiet:conversation.getState().quiet}),resolveDestination:lookupDongDestination,routeToDestination,
  onApplyRoute:route=>applyRoute(route,{fromSetup:true}),
  onRelationship:id=>conversation.selectSetupRelationship(id),
- onState:value=>{if(value.phase!=='destination')destinationVoice?.cancel();handleSetupRouteState(value);passengerStatusUI?.render(value.relationship);setupUI?.render(value);commands?.onSetupState(value);if(value.phase!=='ready')game?.stop();if(value.phase==='passenger-detected')conversation.detectSetupPassenger();if(value.phase==='confirming')queueLocalSpeech((value.target?.name||'이 장소')+'. '+(value.target?.address||'')+'. 이곳이 맞나요?',{fallbackText:'화면에 표시된 목적지가 맞나요?'});if(value.phase==='ready'&&waitingForCompanion){waitingForCompanion=false;lastFrame=performance.now();send('PLAY');beginTripForecast();}},
- onPrompt:({text})=>{clearTimeout(setupPromptTimer);setupPromptTimer=setTimeout(()=>{if(setup.state().phase==='relationship'&&(autoDrive||gpsReady)&&!document.hidden)conversation.speakSetupPrompt(text,{preferPendingInput:true});},0);}
+ onState:value=>{relationshipPrompt.update();if(value.phase!=='destination')destinationVoice?.cancel();handleSetupRouteState(value);passengerStatusUI?.render(value.relationship);setupUI?.render(value);commands?.onSetupState(value);if(value.phase!=='ready')game?.stop();if(value.phase==='passenger-detected')conversation.detectSetupPassenger();if(value.phase==='confirming')queueLocalSpeech((value.target?.name||'이 장소')+'. '+(value.target?.address||'')+'. 이곳이 맞나요?',{fallbackText:'화면에 표시된 목적지가 맞나요?'});if(value.phase==='ready'&&waitingForCompanion){waitingForCompanion=false;lastFrame=performance.now();send('PLAY');beginTripForecast();}},
+ onPrompt:({text})=>{clearTimeout(setupPromptTimer);setupPromptTimer=setTimeout(()=>{if(setup.state().phase==='relationship'&&(autoDrive||gpsReady)&&!document.hidden)relationshipPrompt.schedule(text);},0);}
 });
 setupUI=mountJourneySetupUI({panel:conversation.ui.element,destinationHost:document.querySelector('.system-left'),compactDestinationHost:document.querySelector('.map-tools'),onVoiceDestination:()=>destinationVoice.start(),onVoiceRelationship:()=>{conversation.disableAutomaticListening();conversation.setLocalQuiet(false);conversation.requestDestinationListening();setupUI.setSetupListening(conversation.getTalkState());},onVoiceConfirmation:()=>{conversation.disableAutomaticListening();conversation.setLocalQuiet(false);conversation.requestDestinationListening();setupUI.setConfirmationListening(conversation.getTalkState());},onConfirmDestination:yes=>{if(navigator.userActivation?.isActive)conversation.prepareWelcomeAudio();if(!yes)commands?.cancelPending();return setup.confirmDestination(yes);},getPreferences:()=>({...quizSettings,weather:weatherEnabled}),onPreferences:prefs=>{if(!parkedVehicleEvidence({...state,now:Date.now(),simulatedDriving:autoDrive},{allowSimulatedDriving:true}).allowed){toast('P 정차와 차량 속도 신호를 확인한 뒤 설정해 주세요.');return false;}const {weather,...settings}=prefs;setDestinationWeatherEnabled(weather);quizSettings=settings;difficultyUI?.set(settings);},onDestinationPreset:text=>{if(navigator.userActivation?.isActive)conversation.prepareWelcomeAudio();return conversation.submitText(text);},onCandidate:place=>{if(navigator.userActivation?.isActive)conversation.prepareWelcomeAudio();return setup.selectCandidate(place);},onRelationship:id=>{if(navigator.userActivation?.isActive)conversation.prepareWelcomeAudio();return commands.activateRelationship(id);},onRetry:()=>{conversation.cancelSetupConversation();setup.changeDestination();},onChangeDestination:()=>{stopShowcase();conversation.cancelSetupConversation();setup.changeDestination();}});
 setupUI.render(setup.state());
@@ -8736,7 +8767,7 @@ commands=createDemoCommandRouter({setup,game,onFormat:switchRegionalFormat,onRes
  setQuiet:active=>conversation.setLocalQuiet(active),stopSpeech:()=>{gameSpeechVersion++;clearTimeout(gameSpeechTimer);conversation.stopLocalSpeech();},speak:text=>{if(!retryRegionalSpeech())queueLocalSpeech(text);},
  showFeedback:text=>{intentFeedback.textContent=text;intentFeedback.hidden=!text;if(text){intentFeedback.scrollIntoView({block:'nearest',behavior:'instant'});queueLocalSpeech(text);}},
  startGame:(id,{reason='relationship'}={})=>{if(reason==='requested-game'){switchRegionalFormat(regionalJourney.state().format||contentRotation.order(id)[0]);return;}game.stop();roadsideStatus.hidden=false;roadsideStatus.textContent='지금 지나는 지역의 이야기를 준비해요.';},
- onGameStart:()=>{stopShowcase();clearTimeout(setupPromptTimer);conversation.stopLocalSpeech();if(navigator.userActivation?.isActive)conversation.prepareWelcomeAudio();}
+ onGameStart:()=>{stopShowcase();clearTimeout(setupPromptTimer);relationshipPrompt.cancel();conversation.stopLocalSpeech();if(navigator.userActivation?.isActive)conversation.prepareWelcomeAudio();}
 });
 function queueLocalSpeech(text){
  let {fallbackText=null}=arguments[1]||{};
@@ -8949,7 +8980,7 @@ document.addEventListener('visibilitychange',()=>{
  if(document.hidden){clearTimeout(welcomeStartTimer);stopShowcase();gpsSession.stop();gpsReady=false;game?.refresh();setup?.locationLost();gpsUI.render({ready:false,active:false,status:'paused',message:'화면을 벗어나 위치 확인을 멈췄어요.'});}
  else if(gpsIntent){gpsActive=true;gpsSession.start();}
 });
-window.addEventListener('pagehide',()=>{clearTimeout(welcomeStartTimer);roadside?.reset();resetRegionalJourney();showcase.stop('closed');game?.stop();commands?.dispose();clearTimeout(gameSpeechTimer);setup?.stop();clearTimeout(setupPromptTimer);gpsSession.stop();});
+window.addEventListener('pagehide',()=>{clearTimeout(welcomeStartTimer);roadside?.reset();resetRegionalJourney();showcase.stop('closed');game?.stop();commands?.dispose();clearTimeout(gameSpeechTimer);setup?.stop();clearTimeout(setupPromptTimer);relationshipPrompt.cancel();gpsSession.stop();});
 // On return visits in this tab, use only an already-granted browser permission.
 try{if(sessionStorage.getItem(locationConsentKey)==='osrm-nearest')navigator.permissions?.query({name:'geolocation'}).then(p=>{if(p.state==='granted')startGps();}).catch(()=>{});}catch{}
 render();
