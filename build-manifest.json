@@ -1,5 +1,5 @@
 {
-  "applicationBuild": "all-choice-answer-v55-20261115",
+  "applicationBuild": "destination-recovery-v56-20261115",
   "sourceRoot": "ui/",
   "entry": "cockpit.js",
   "modules": [
@@ -209,15 +209,15 @@
     },
     {
       "file": "route-planner.mjs",
-      "sha256": "030eb49583449e2b578507b1e42d3dad0823222f5a79d9cb8d3222f5ba892571"
+      "sha256": "ab3aab6766eb70c10e7a7aed4b4c14a98be9312fd9897c55236142315b99ddcd"
     },
     {
       "file": "journey-setup.mjs",
-      "sha256": "962c581beafc994fbf2f38dba2954af77f94306e57396960ea4cfcc4f696d891"
+      "sha256": "023f6b418afd4b3dbb55684e2dcb6dc49b0a92c3d45e9ca183b8037c64ec6717"
     },
     {
       "file": "journey-setup-ui.mjs",
-      "sha256": "07a3a2c73dd3be55764bfd54be234d90afe9d76909876a1016bdec60dc602f97"
+      "sha256": "6778ad684cf5c0533199a53287b2c4488cca78f4290ae4865832a8e4425cff32"
     },
     {
       "file": "destination-service.mjs",
@@ -300,5 +300,5 @@
       "sha256": "744fad46e7e1cfeabc55cec023a1548cb6c7b5ff0e3be3f8cd40511360c76ea1"
     }
   ],
-  "indexSha256": "8e93a454e88446b3fd1fd86efecc10e22bdd1858e70dcad52bcdfe09dec15563"
+  "indexSha256": "84777d528a7b436e595dbaa027efc4f85b44c3b6abb298dea04e639dc15e9553"
 }
