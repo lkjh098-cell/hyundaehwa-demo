@@ -1,5 +1,5 @@
 {
-  "applicationBuild": "destination-recovery-v56-20261115",
+  "applicationBuild": "dong-destination-v57-20261115",
   "sourceRoot": "ui/",
   "entry": "cockpit.js",
   "modules": [
@@ -56,12 +56,20 @@
       "sha256": "2e8b94ca51264971a35c775d929e280784201fd46b938979ffe6ebf13830ff29"
     },
     {
+      "file": "data/dong-destinations.mjs",
+      "sha256": "38b5f7421ceef916d8ffd8217ee1d20ed410e0e78fa402f301042583dbd3a7e9"
+    },
+    {
+      "file": "dong-destinations.mjs",
+      "sha256": "1870ce80660d091c9df29f1a5ae148bd5bbf48ecbd51710a06cf92a1e1d9a0cd"
+    },
+    {
       "file": "pleos-display-layout.mjs",
       "sha256": "92bab46799e3da404bd27a9145413b6c40730a46a243aaf3a62792102de31753"
     },
     {
       "file": "destination-voice.mjs",
-      "sha256": "9b4b54807b24463748ee35241d37cff222737ce690473ecfbb2b0f1ddf4f22d5"
+      "sha256": "ee1906e9c16aacb7f2309c3b80ddbf001cb5e287f614352049bceed0a1f00afb"
     },
     {
       "file": "data/local-food-preferences.mjs",
@@ -113,7 +121,7 @@
     },
     {
       "file": "demo-guide.mjs",
-      "sha256": "62714f704c574794f323e4c6e3a5431520911283f2c4c09765011578f487a038"
+      "sha256": "7b4457f91d6416de8186bbef501e8f211046a811f4c535be08ec5468630a11ad"
     },
     {
       "file": "presentation-policy.mjs",
@@ -209,15 +217,15 @@
     },
     {
       "file": "route-planner.mjs",
-      "sha256": "ab3aab6766eb70c10e7a7aed4b4c14a98be9312fd9897c55236142315b99ddcd"
+      "sha256": "9a45de01ce1f2c47b3b845a342c46ba5e450a00b25dd6de19b759b8995a6e506"
     },
     {
       "file": "journey-setup.mjs",
-      "sha256": "023f6b418afd4b3dbb55684e2dcb6dc49b0a92c3d45e9ca183b8037c64ec6717"
+      "sha256": "660eee2dd698181e4e3b18cb4cc66ad5a95173db1535b8f0052cb8373c6d38a3"
     },
     {
       "file": "journey-setup-ui.mjs",
-      "sha256": "6778ad684cf5c0533199a53287b2c4488cca78f4290ae4865832a8e4425cff32"
+      "sha256": "0c25381e1fecaae4144d4583e3e84fc07b0e18d991fae7aa74f7bd49695abdf5"
     },
     {
       "file": "destination-service.mjs",
@@ -297,8 +305,8 @@
     },
     {
       "file": "cockpit.js",
-      "sha256": "744fad46e7e1cfeabc55cec023a1548cb6c7b5ff0e3be3f8cd40511360c76ea1"
+      "sha256": "49c1688b6beae247e278a103485d4ee89f22d70a5f8ba7aad4b8adebda0bf0df"
     }
   ],
-  "indexSha256": "84777d528a7b436e595dbaa027efc4f85b44c3b6abb298dea04e639dc15e9553"
+  "indexSha256": "9311dafb8bd070a44ff9727fa663cd118f2758301fe97b1196124b0c0c860a8a"
 }
