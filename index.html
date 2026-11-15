@@ -1713,7 +1713,7 @@ function completeLabelChoice(value,options){
 }
 // A content fragment must occur in just one displayed option and fill the whole
 // bounded answer. Common short words and shared phrases never pick an option.
-const genericChoiceFragments=new Set(['이곳','저곳','지역','장소','사람','우리','현재','다음','모든','여러','있는','없는','다른','같은','작은','큰','새로운','자체','직접','제작한','만든','만들어','하는','있어요','없어요','보기','하기','가요','해요','그곳','위한','받은','함께','각자','먼저','그대로','모두','방식','이용','통해','때문에']);
+const genericChoiceFragments=new Set(['이곳','저곳','지역','장소','사람','우리','현재','다음','모든','여러','있는','없는','다른','같은','작은','큰','새로운','자체','직접','제작한','만든','만들어','하는','있어요','없어요','보기','하기','가요','해요','그곳','위한','받은','함께','각자','먼저','그대로','모두','방식','이용','통해','때문에','계단','건물']);
 function distinctiveLabelChoice(value,options){
  if(indirectAnswer.test(clean(value))||NOT_AN_ANSWER.test(clean(value)))return [];
  const source=choiceKey(value),labels=options.map(option=>choiceKey(option.label)),ids=[];
@@ -1764,7 +1764,8 @@ function toleratedCurrentChoice(value,text,options){
 function numberedLabelConflict(value,options){
  const match=new RegExp('^'+answerPrefix+'('+choiceOrdinal+')(.+)$','u').exec(choiceKey(value));
  if(!match)return false;
- const index=choiceOrdinalIndex(match[1]),ids=[...new Set([...completeLabelChoice(match[2],options),...distinctiveLabelChoice(match[2],options)])];
+ const index=choiceOrdinalIndex(match[1]),complete=completeLabelChoice(match[2],options);
+ const ids=complete.length?complete:distinctiveLabelChoice(match[2],options);
  return ids.length>0&&(!options[index]||ids.length!==1||ids[0]!==options[index].id);
 }
 function exactCurrentChoice(value,context={}){
