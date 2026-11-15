@@ -1120,7 +1120,7 @@ body.vehicle-runtime.pleos-display-preview .cockpit .driving-view{display:none!i
 body.vehicle-runtime.pleos-display-preview .cockpit .vehicle-status{grid-template-columns:minmax(240px,1fr) auto}
 body.vehicle-runtime.pleos-display-preview .cockpit .driving-status{border-right:0}
 </style>
-<meta name="robots" content="noindex,nofollow"><meta name="application-build" content="choice-answer-v54-20261115"><style id="gps-recovery-styles">.gps-map-gate{overflow:auto;overscroll-behavior:contain}.gps-map-gate>div{width:min(100%,440px)}.gps-actions{display:flex;flex-wrap:wrap;gap:8px}.gps-actions .gps-cancel{background:#e3ebf3;color:#0b2648}.gps-recovery{margin-top:18px;padding:16px;border:1px solid #c8d7e7;border-radius:14px;background:#fff;text-align:left}.gps-recovery[hidden],.gps-cancel[hidden]{display:none}.gps-recovery strong{font-size:16px;color:#0b2648}.gps-recovery p,.gps-recovery li{font-size:13px;line-height:1.65;color:#344f6a}.gps-recovery ol{padding-left:20px}.gps-map-gate .gps-copy-link{min-height:42px;background:#e9f0f8;color:#0b2648}.gps-copy-status{display:block;font-size:12px;line-height:1.6;margin-top:8px;color:#234e7c}.gps-copy-fallback{width:100%;margin-top:8px;padding:10px;font-size:12px;border:1px solid #9bb2cb;border-radius:8px}.gps-real-location-note{margin-bottom:0;color:#62788d!important}.gps-privacy{margin-top:14px}.gps-map-gate[aria-busy=true] .gps-gate-status::before{content:'◌';display:inline-block;margin-right:7px;color:#1b5a95}@media(max-height:760px){.gps-map-gate{place-items:start center}}
+<meta name="robots" content="noindex,nofollow"><meta name="application-build" content="all-choice-answer-v55-20261115"><style id="gps-recovery-styles">.gps-map-gate{overflow:auto;overscroll-behavior:contain}.gps-map-gate>div{width:min(100%,440px)}.gps-actions{display:flex;flex-wrap:wrap;gap:8px}.gps-actions .gps-cancel{background:#e3ebf3;color:#0b2648}.gps-recovery{margin-top:18px;padding:16px;border:1px solid #c8d7e7;border-radius:14px;background:#fff;text-align:left}.gps-recovery[hidden],.gps-cancel[hidden]{display:none}.gps-recovery strong{font-size:16px;color:#0b2648}.gps-recovery p,.gps-recovery li{font-size:13px;line-height:1.65;color:#344f6a}.gps-recovery ol{padding-left:20px}.gps-map-gate .gps-copy-link{min-height:42px;background:#e9f0f8;color:#0b2648}.gps-copy-status{display:block;font-size:12px;line-height:1.6;margin-top:8px;color:#234e7c}.gps-copy-fallback{width:100%;margin-top:8px;padding:10px;font-size:12px;border:1px solid #9bb2cb;border-radius:8px}.gps-real-location-note{margin-bottom:0;color:#62788d!important}.gps-privacy{margin-top:14px}.gps-map-gate[aria-busy=true] .gps-gate-status::before{content:'◌';display:inline-block;margin-right:7px;color:#1b5a95}@media(max-height:760px){.gps-map-gate{place-items:start center}}
 
 /* Keep accepted answers visible inside the pinned card while chat history is compacted. */
 .cv-unified .cv-chat-bubble.cv-game-answer{display:block;width:fit-content;max-width:90%;margin:16px 0 14px auto;padding:14px 18px;scroll-margin-block:14px;background:#0b2648;color:#fff;border:1px solid #0b2648;border-radius:18px 3px 18px 18px}
@@ -1700,38 +1700,73 @@ const NOT_AN_ANSWER=/["“”‘’「」『』]|라고|다고|말고|말구|아
 const choiceKey=value=>key(value).replace(/[·ㆍ・]/gu,'');
 const choiceOrdinal='(?:[1-9]번|첫번째|첫째|첫번|처음거|일번|두번째|둘째|두번|이번|세번째|셋째|세번|삼번|네번째|넷째|네번|사번)';
 function choiceOrdinalIndex(value){return /^[1-9]/u.test(value)?Number(value[0])-1:/^(?:첫|처음|일)/u.test(value)?0:/^(?:두|둘|이)/u.test(value)?1:/^(?:세|셋|삼)/u.test(value)?2:3;}
-function completeLabelChoice(value,options){
- const source=choiceKey(value),ids=[];
- for(const [index,option] of options.entries()){
-  const terms=[option.label,...(Array.isArray(option.keywords)?option.keywords:[]),...spokenYearAliases(option.label)].filter(Boolean);
-  for(const term of terms){
-   const match=new RegExp('^'+answerPrefix+'('+choiceOrdinal+')?'+escapeRegex(choiceKey(term))+answerEnding+'$','u').exec(source);
-   if(match&&(!match[1]||choiceOrdinalIndex(match[1])===index)){ids.push(option.id);break;}
-  }
- }
- return [...new Set(ids)];
+// Cache bounded grammars by the displayed order/content, rather than rebuilding
+// every phrase and regular expression twice for every recognition event.
+const choiceGrammarCache=new Map();
+const genericChoiceFragments=new Set(['이곳','저곳','지역','장소','사람','우리','현재','다음','모든','여러','있는','없는','다른','같은','작은','큰','새로운','자체','직접','제작한','만든','만들어','하는','있어요','없어요','보기','하기','가요','해요','그곳','위한','받은','함께','각자','먼저','그대로','모두','방식','이용','통해','때문에','계단','건물','선택','같아']);
+// Single syllables qualify only as actual words or noun-particle stems, never
+// arbitrary substrings. These grammatical words/past verb forms supply no noun.
+const functionalSyllables=new Set(['한','두','세','네','큰','긴','더','덜','안','못','잘','다','또','꼭','각','수','점','중','것','곳','거','때','내','나','너','저','제','그','이','와','과','을','를','은','는','에','의','로','도','만','씩','뿐','및','첫','둘','셋','넷','후','온','간','쓴','본','할','된','던','줄','될','인','일']);
+function phraseForms(phrase){
+ const normalized=choiceKey(phrase),forms=[normalized];
+ // Topic/subject endings are safe for longer nouns; for one-syllable stems use
+// object, location and association particles (남은 must not turn into 남).
+ const stem=normalized.replace(/(?:에서|에게|까지|부터|으로|을|를|의|로|에|와|과|도)$/u,'');
+ if(stem!==normalized)forms.push(stem);
+ const longStem=normalized.replace(/(?:은|는|이|가)$/u,'');
+ if(longStem.length>=2&&longStem!==normalized)forms.push(longStem);
+ return [...new Set(forms)].filter(Boolean);
 }
-// A content fragment must occur in just one displayed option and fill the whole
-// bounded answer. Common short words and shared phrases never pick an option.
-const genericChoiceFragments=new Set(['이곳','저곳','지역','장소','사람','우리','현재','다음','모든','여러','있는','없는','다른','같은','작은','큰','새로운','자체','직접','제작한','만든','만들어','하는','있어요','없어요','보기','하기','가요','해요','그곳','위한','받은','함께','각자','먼저','그대로','모두','방식','이용','통해','때문에','계단','건물']);
-function distinctiveLabelChoice(value,options){
- if(indirectAnswer.test(clean(value))||NOT_AN_ANSWER.test(clean(value)))return [];
- const source=choiceKey(value),labels=options.map(option=>choiceKey(option.label)),ids=[];
+function answerPattern(terms){
+ if(!terms.length)return null;
+ return new RegExp('^'+answerPrefix+'('+choiceOrdinal+')?(?:'+terms.sort((a,b)=>b.length-a.length).map(escapeRegex).join('|')+')('+choiceOrdinal+')?'+answerEnding+'$','u');
+}
+function grammarMatches(pattern,source,index){
+ const match=pattern?.exec(source);
+ return !!match&&(!match[1]||choiceOrdinalIndex(match[1])===index)&&(!match[2]||choiceOrdinalIndex(match[2])===index);
+}
+function currentChoiceGrammar(options){
+ const signature=JSON.stringify(options.map(option=>[option.id,option.label,option.keywords]));
+ if(choiceGrammarCache.has(signature))return choiceGrammarCache.get(signature);
+ const labels=options.map(option=>choiceKey(option.label)),candidates=options.map(()=>new Set()),blocked=new Set();
+ // Ownership also sees a noun followed by a topic/subject particle. This only
+ // blocks shared short answers (꽃 / 꽃이), without accepting new noun stems or
+ // confusing a complete different word such as 물 / 식물.
+ const ownershipWords=options.map(option=>new Set(clean(option.label).split(' ').flatMap(word=>{
+  const normalized=choiceKey(word);return [normalized,normalized.replace(/(?:은|는|이|가)$/u,'')].filter(Boolean);
+ })));
  for(const [index,option] of options.entries()){
-  const words=clean(option.label).split(' '),terms=new Set();
+  const words=clean(option.label).split(' ');
   for(let first=0;first<words.length;first++)for(let last=first+1;last<=words.length;last++){
    const span=words.slice(first,last);
    if(span.every(word=>genericChoiceFragments.has(choiceKey(word))))continue;
-   const phrase=span.join(' ');
-   for(const term of [phrase,phrase.replace(/(?:에서|으로|은|는|이|가|을|를|의)$/u,'')]){
-    const normalized=choiceKey(term);
-    if(normalized.length<2||genericChoiceFragments.has(normalized)||normalized===labels[index]||labels.filter(label=>label.includes(normalized)).length!==1)continue;
-    terms.add(normalized);
-   }
+   for(const term of phraseForms(span.join(' ')))if(term!==labels[index])candidates[index].add(term);
   }
-  for(const term of terms){const match=new RegExp('^'+answerPrefix+'('+choiceOrdinal+')?'+escapeRegex(term)+answerEnding+'$','u').exec(source);if(match&&(!match[1]||choiceOrdinalIndex(match[1])===index)){ids.push(option.id);break;}}
+  for(const keyword of Array.isArray(option.keywords)?option.keywords:[])for(const term of phraseForms(keyword))if(term!==labels[index])candidates[index].add(term);
  }
- return [...new Set(ids)];
+ const short=candidates.map((terms,index)=>[...terms].filter(term=>{
+  if(new RegExp('^(?:'+choiceOrdinal+'|[1-9])$','u').test(term))return false;
+  const generic=genericChoiceFragments.has(term)||term.length===1&&functionalSyllables.has(term);
+  const owners=labels.map((label,i)=>(term.length===1?ownershipWords[i].has(term):label.includes(term))||candidates[i].has(term)?i:-1).filter(i=>i>=0);
+  if(generic||owners.length!==1){blocked.add(term);return false;}
+  return term.length>=1;
+ }));
+ const grammar={full:options.map(option=>answerPattern([choiceKey(option.label),...spokenYearAliases(option.label).map(choiceKey)])),short:short.map(answerPattern),blocked:answerPattern([...blocked].filter(term=>!labels.includes(term)))};
+ if(choiceGrammarCache.size>=64)choiceGrammarCache.delete(choiceGrammarCache.keys().next().value);
+ choiceGrammarCache.set(signature,grammar);return grammar;
+}
+function completeLabelChoice(value,options){
+ const source=choiceKey(value),grammar=currentChoiceGrammar(options);
+ return options.filter((option,index)=>grammarMatches(grammar.full[index],source,index)).map(option=>option.id);
+}
+function distinctiveLabelChoice(value,options){
+ // The whole bounded grammar supplies scope: a negative/reporting word inside
+// an actual displayed phrase is content, while appended chatter cannot match.
+ const source=choiceKey(value),grammar=currentChoiceGrammar(options);
+ return options.filter((option,index)=>grammarMatches(grammar.short[index],source,index)).map(option=>option.id);
+}
+function ambiguousShortChoice(value,options){
+ return !!currentChoiceGrammar(options).blocked?.test(choiceKey(value));
 }
 const ORDINAL_PREFIX=/^(?:([1-9])번|(첫|두|세|네)(?:번째|째)|(일|이|삼|사)번)/u;
 function syllableDistance(a,b){
@@ -1762,21 +1797,22 @@ function toleratedCurrentChoice(value,text,options){
 }
 /** Exact complete current labels win over words embedded in those labels, never surrounding chatter. */
 function numberedLabelConflict(value,options){
- const match=new RegExp('^'+answerPrefix+'('+choiceOrdinal+')(.+)$','u').exec(choiceKey(value));
- if(!match)return false;
- const index=choiceOrdinalIndex(match[1]),complete=completeLabelChoice(match[2],options);
- const ids=complete.length?complete:distinctiveLabelChoice(match[2],options);
- return ids.length>0&&(!options[index]||ids.length!==1||ids[0]!==options[index].id);
+ const source=choiceKey(value),prefix=new RegExp('^'+answerPrefix+'('+choiceOrdinal+')(.+)$','u').exec(source),suffix=new RegExp('^(.+?)('+choiceOrdinal+')'+answerEnding+'$','u').exec(source);
+ return [prefix&&[prefix[1],prefix[2]],suffix&&[suffix[2],suffix[1]]].filter(Boolean).some(([number,body])=>{
+  const index=choiceOrdinalIndex(number),complete=completeLabelChoice(body,options),ids=complete.length?complete:distinctiveLabelChoice(body,options);
+  return ids.length>0&&(!options[index]||ids.length!==1||ids[0]!==options[index].id);
+ });
 }
 function exactCurrentChoice(value,context={}){
  if((context.phase||'ready')!=='ready'||context.game?.active!==true||context.game?.phase!=='question')return null;
  const text=key(value);if(!text)return null;
  const options=context.game.options||[];
- if(numberedLabelConflict(value,options))return null;
  // Match the complete displayed answer with polite/answer/number wrappers before
  // generic navigation, replay or passenger-address words inside its label.
  const complete=completeLabelChoice(value,options);
  if(complete.length)return complete.length===1?complete[0]:null;
+ if(numberedLabelConflict(value,options))return null;
+ if(ambiguousShortChoice(value,options))return null;
  const distinctive=distinctiveLabelChoice(value,options);
  if(distinctive.length)return distinctive.length===1?distinctive[0]:null;
  return toleratedCurrentChoice(value,text,options);
@@ -1787,10 +1823,11 @@ function interpretSpokenIntent(value, context = {}) {
  if (!validPhases.has(phase)) return clarify('현재 단계에서 요청을 확인하지 못했어요.');
  const expected = EXPECTED.has(phase), gameActive = ['question','answered'].includes(context.game?.phase), gameQuestion = context.game?.phase==='question';
  if (!text || text.length>1000 || /[<>]/u.test(text)) return clarify('말씀을 짧게 다시 들려주세요.');
- if(phase==='ready'&&context.game?.active===true&&context.game?.phase==='question'&&numberedLabelConflict(value,context.game.options||[]))return clarify('번호와 내용이 다른 선택지를 가리켜요. 번호나 답을 하나만 다시 말씀해 주세요.');
  const exactChoice=exactCurrentChoice(value,context);if(exactChoice)return result('choice',{choiceId:exactChoice},.99);
+ if(phase==='ready'&&context.game?.active===true&&context.game?.phase==='question'&&numberedLabelConflict(value,context.game.options||[]))return clarify('번호와 내용이 다른 선택지를 가리켜요. 번호나 답을 하나만 다시 말씀해 주세요.');
+ if(phase==='ready'&&context.game?.active===true&&gameQuestion&&(ambiguousShortChoice(value,context.game.options||[])||distinctiveLabelChoice(value,context.game.options||[]).length>1))return clarify('선택지에 공통으로 쓰인 말이에요. 번호나 구별되는 내용을 말씀해 주세요.');
  if(phase==='confirming'){const confirmed=parseDestinationConfirmation(text);return confirmed===null?clarify('이곳이 맞으면 네, 아니면 아니요라고 말씀해 주세요.'):result('destination-confirmation',{confirmed},.99);}
- const fallback = () => context.explicitAssistant===true&&phase==='ready'?result('chat',{},.9):expected || gameQuestion ? clarify(phase==='relationship'?'함께 탄 분과 어떤 관계인지 말씀해 주세요.':phase==='candidates'?'표시된 후보 중 번호나 장소명을 말씀해 주세요.':gameQuestion?'화면에 보이는 두 선택지 중 하나를 말씀해 주세요.':'정확한 목적지 이름을 말씀해 주세요.') : result('chat',{},.6);
+ const fallback = () => context.explicitAssistant===true&&phase==='ready'?result('chat',{},.9):expected || gameQuestion ? clarify(phase==='relationship'?'함께 탄 분과 어떤 관계인지 말씀해 주세요.':phase==='candidates'?'표시된 후보 중 번호나 장소명을 말씀해 주세요.':gameQuestion?'화면에 보이는 선택지 중 하나를 말씀해 주세요.':'정확한 목적지 이름을 말씀해 주세요.') : result('chat',{},.6);
  const relationAnswer=analyzeSpokenRelationship(text),relationPrompt=['relationship','passenger-detected'].includes(phase);
  if(relationPrompt&&relationAnswer.direct)return result('relationship',{relationship:relationAnswer.relationship},.99);
  const rest=restAnswer(text,context.restChoices);
