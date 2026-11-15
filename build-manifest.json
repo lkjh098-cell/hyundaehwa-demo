@@ -1,5 +1,5 @@
 {
-  "applicationBuild": "dong-destination-v57-20261115",
+  "applicationBuild": "relationship-first-answer-v58-20261115",
   "sourceRoot": "ui/",
   "entry": "cockpit.js",
   "modules": [
@@ -265,7 +265,7 @@
     },
     {
       "file": "talk-runtime.mjs",
-      "sha256": "e45764de1dea55b53b9a4544f4aca53f9f6f3ed5239ba23948877fe82c6d1a57"
+      "sha256": "6c10e843cac24794901fe70a54c5882aea38182c2e1e7bb9a32075476f627fac"
     },
     {
       "file": "conversation-data.mjs",
@@ -289,7 +289,7 @@
     },
     {
       "file": "conversation-runtime.mjs",
-      "sha256": "5bb18a97dabd476a2ca3beb73f5220f31b6934f9d377c7f5aba17d1227ffae3d"
+      "sha256": "b7d1c3dcdaa161d0ecbd5100ca2837da2a351f7b596e8c8b726bc4397042e9ea"
     },
     {
       "file": "oem-cockpit.mjs",
@@ -305,8 +305,8 @@
     },
     {
       "file": "cockpit.js",
-      "sha256": "49c1688b6beae247e278a103485d4ee89f22d70a5f8ba7aad4b8adebda0bf0df"
+      "sha256": "7fd0eb8278d3b1122c1687883b6da3db7b42f4083775e98901b69d86e33d272e"
     }
   ],
-  "indexSha256": "9311dafb8bd070a44ff9727fa663cd118f2758301fe97b1196124b0c0c860a8a"
+  "indexSha256": "74394abd49e25e9497c324cdb41d53d122b075ca60a325f350fb8a8672c64774"
 }
